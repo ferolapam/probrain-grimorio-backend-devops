@@ -264,7 +264,6 @@ No Colab, usar células Markdown para explicar:
 - estratégia de **validação**
 - **tratamento de erros**
 - como a **arquitetura** facilita manutenção
-=======
 
 ## Sumário
 - [✅ Objetivo do desafio](#-objetivo-do-desafio)
