@@ -54,7 +54,9 @@ class MagiaRepository:
         self._index_add(magia_atualizada)
         return magia_atualizada
 
-    def query_ids(self, escola: Optional[str], nivel: Optional[int]) -> Optional[Set[str]]:
+    def query_ids(
+        self, escola: Optional[str], nivel: Optional[int]
+    ) -> Optional[Set[str]]:
         # PERF: índices aceleram filtros exatos
         candidates: Optional[Set[str]] = None
 
@@ -63,7 +65,9 @@ class MagiaRepository:
 
         if nivel is not None:
             by_level = set(self._index_by_level.get(nivel, set()))
-            candidates = by_level if candidates is None else candidates.intersection(by_level)
+            candidates = (
+                by_level if candidates is None else candidates.intersection(by_level)
+            )
 
         return candidates
 

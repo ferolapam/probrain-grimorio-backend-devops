@@ -43,7 +43,9 @@ class RequestContext:
     claims: Optional[AuthClaims] = None
 
 
-def response(status: int, request_id: str, data: Any = None, error: Any = None, meta: Any = None) -> Dict[str, Any]:
+def response(
+    status: int, request_id: str, data: Any = None, error: Any = None, meta: Any = None
+) -> Dict[str, Any]:
     payload: Dict[str, Any] = {"status": status, "request_id": request_id}
     if data is not None:
         payload["data"] = data
@@ -63,18 +65,30 @@ def _require_write_access(ctx: RequestContext) -> Optional[Dict[str, Any]]:
     if not ctx.claims:
         return {"code": ERR_UNAUTHORIZED, "message": "Autenticação necessária."}
     if ctx.claims.role not in {"writer", "admin"}:
-        return {"code": ERR_FORBIDDEN, "message": "Permissão insuficiente para escrita."}
+        return {
+            "code": ERR_FORBIDDEN,
+            "message": "Permissão insuficiente para escrita.",
+        }
     return None
 
 
 def _rate_limit_or_error(ctx: RequestContext) -> Optional[Dict[str, Any]]:
     # COST: proteção contra volume excessivo
     if not RATE_LIMITER.allow(ctx.client_id):
-        return {"code": ERR_RATE_LIMITED, "message": "Limite de requisições excedido (60/min)."}
+        return {
+            "code": ERR_RATE_LIMITED,
+            "message": "Limite de requisições excedido (60/min).",
+        }
     return None
 
 
-def _cache_key_list(nome: Optional[str], escola: Optional[str], nivel: Optional[int], limit: int, offset: int) -> str:
+def _cache_key_list(
+    nome: Optional[str],
+    escola: Optional[str],
+    nivel: Optional[int],
+    limit: int,
+    offset: int,
+) -> str:
     return f"spells:list:nome={nome}|escola={escola}|nivel={nivel}|limit={limit}|offset={offset}"
 
 
@@ -105,7 +119,9 @@ def create_magia_controller(
 
     ok, claims, reason = verify_bearer_token(authorization)
     if not ok:
-        return response(401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason})
+        return response(
+            401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason}
+        )
     ctx.claims = claims
 
     perm_error = _require_write_access(ctx)
@@ -120,10 +136,16 @@ def create_magia_controller(
         return response(
             400,
             request_id,
-            error={"code": ERR_VALIDATION, "message": "Payload inválido", "details": e.errors()},
+            error={
+                "code": ERR_VALIDATION,
+                "message": "Payload inválido",
+                "details": e.errors(),
+            },
         )
     except ValueError as e:
-        return response(400, request_id, error={"code": ERR_BUSINESS_RULE, "message": str(e)})
+        return response(
+            400, request_id, error={"code": ERR_BUSINESS_RULE, "message": str(e)}
+        )
 
 
 @instrument("read_magias")
@@ -150,7 +172,10 @@ def read_magias_controller(
         return response(
             400,
             request_id,
-            error={"code": ERR_INVALID_PAGINATION, "message": "limit deve ser 1..100 e offset >= 0."},
+            error={
+                "code": ERR_INVALID_PAGINATION,
+                "message": "limit deve ser 1..100 e offset >= 0.",
+            },
         )
 
     key = _cache_key_list(nome, escola, nivel, lim, off)
@@ -167,7 +192,10 @@ def read_magias_controller(
         res = response(
             404,
             request_id,
-            error={"code": ERR_SPELL_NOT_FOUND, "message": "Nenhuma magia encontrada para os filtros informados."},
+            error={
+                "code": ERR_SPELL_NOT_FOUND,
+                "message": "Nenhuma magia encontrada para os filtros informados.",
+            },
         )
         CACHE.set(key, res, CACHE_TTL_SECONDS)
         return res
@@ -176,7 +204,13 @@ def read_magias_controller(
         200,
         request_id,
         data=[magia_to_dict(m) for m in paged],
-        meta={"limit": lim, "offset": off, "returned": len(paged), "total": total, "cache": "miss"},
+        meta={
+            "limit": lim,
+            "offset": off,
+            "returned": len(paged),
+            "total": total,
+            "cache": "miss",
+        },
     )
     CACHE.set(key, res, CACHE_TTL_SECONDS)
     return res
@@ -199,7 +233,9 @@ def update_magia_controller(
 
     ok, claims, reason = verify_bearer_token(authorization)
     if not ok:
-        return response(401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason})
+        return response(
+            401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason}
+        )
     ctx.claims = claims
 
     perm_error = _require_write_access(ctx)
@@ -209,17 +245,27 @@ def update_magia_controller(
     try:
         magia = SERVICE.update(id_magia, payload)
         if not magia:
-            return response(404, request_id, error={"code": ERR_SPELL_NOT_FOUND, "message": "Magia não encontrada."})
+            return response(
+                404,
+                request_id,
+                error={"code": ERR_SPELL_NOT_FOUND, "message": "Magia não encontrada."},
+            )
         _invalidate_spells_cache()
         return response(200, request_id, data=magia_to_dict(magia))
     except ValidationError as e:
         return response(
             400,
             request_id,
-            error={"code": ERR_VALIDATION, "message": "Payload inválido", "details": e.errors()},
+            error={
+                "code": ERR_VALIDATION,
+                "message": "Payload inválido",
+                "details": e.errors(),
+            },
         )
     except ValueError as e:
-        return response(400, request_id, error={"code": ERR_BUSINESS_RULE, "message": str(e)})
+        return response(
+            400, request_id, error={"code": ERR_BUSINESS_RULE, "message": str(e)}
+        )
 
 
 @instrument("delete_magia")
@@ -238,7 +284,9 @@ def delete_magia_controller(
 
     ok, claims, reason = verify_bearer_token(authorization)
     if not ok:
-        return response(401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason})
+        return response(
+            401, request_id, error={"code": ERR_UNAUTHORIZED, "message": reason}
+        )
     ctx.claims = claims
 
     perm_error = _require_write_access(ctx)
@@ -247,10 +295,21 @@ def delete_magia_controller(
 
     removida = SERVICE.delete(id_magia)
     if not removida:
-        return response(404, request_id, error={"code": ERR_SPELL_NOT_FOUND, "message": "Magia não encontrada."})
+        return response(
+            404,
+            request_id,
+            error={"code": ERR_SPELL_NOT_FOUND, "message": "Magia não encontrada."},
+        )
 
     _invalidate_spells_cache()
-    return response(200, request_id, data={"message": "Magia removida com sucesso.", "removed": magia_to_dict(removida)})
+    return response(
+        200,
+        request_id,
+        data={
+            "message": "Magia removida com sucesso.",
+            "removed": magia_to_dict(removida),
+        },
+    )
 
 
 @instrument("calcular_dano_escala")
@@ -271,7 +330,10 @@ def calcular_dano_escala_controller(
     if err:
         # padroniza NOT_FOUND quando aplicável
         if isinstance(err, dict) and err.get("code") == "NOT_FOUND":
-            err = {"code": ERR_SPELL_NOT_FOUND, "message": err.get("message", "Magia não encontrada.")}
+            err = {
+                "code": ERR_SPELL_NOT_FOUND,
+                "message": err.get("message", "Magia não encontrada."),
+            }
         return response(status, request_id, error=err)
 
     return response(200, request_id, data=data)

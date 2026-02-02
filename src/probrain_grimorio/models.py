@@ -41,13 +41,17 @@ class DanoEscala(BaseModel):
 
     def calcular_para_slot(self, nivel_slot: int) -> str:
         if nivel_slot < self.slot_base:
-            raise ValueError(f"nivel_slot ({nivel_slot}) não pode ser menor que slot_base ({self.slot_base}).")
+            raise ValueError(
+                f"nivel_slot ({nivel_slot}) não pode ser menor que slot_base ({self.slot_base})."
+            )
 
         base_n, base_d = self._parse_dice(self.base_dados)
         inc_n, inc_d = self._parse_dice(self.incremento_por_slot)
 
         if base_d != inc_d:
-            raise ValueError("Incremento deve ter o mesmo tipo de dado do dano base (ex.: 8d6 e +1d6).")
+            raise ValueError(
+                "Incremento deve ter o mesmo tipo de dado do dano base (ex.: 8d6 e +1d6)."
+            )
 
         diff = nivel_slot - self.slot_base
         total_n = base_n + diff * inc_n
@@ -83,9 +87,13 @@ class Magia(BaseModel):
 
         if self.material_com_custo:
             if "M" not in comps:
-                raise ValueError("material_com_custo=True exige componente 'M' em componentes.")
+                raise ValueError(
+                    "material_com_custo=True exige componente 'M' em componentes."
+                )
             if self.custo_em_ouro is None or self.custo_em_ouro <= 0:
-                raise ValueError("custo_em_ouro é obrigatório e deve ser > 0 quando material_com_custo=True.")
+                raise ValueError(
+                    "custo_em_ouro é obrigatório e deve ser > 0 quando material_com_custo=True."
+                )
 
         return self
 

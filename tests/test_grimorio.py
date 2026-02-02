@@ -12,7 +12,9 @@ AUTH_WRITER = "Bearer valid:user123:writer"
 
 def test_contract_response_shape():
     reset_all_state()
-    res = read_magias_controller(nome=None, escola=None, nivel=None, limit=10, offset=0, client_id="t1")
+    res = read_magias_controller(
+        nome=None, escola=None, nivel=None, limit=10, offset=0, client_id="t1"
+    )
     assert "status" in res
     assert "request_id" in res
     assert ("data" in res) or ("error" in res)
@@ -20,13 +22,17 @@ def test_contract_response_shape():
 
 def test_read_not_found():
     reset_all_state()
-    res = read_magias_controller(nome="inexistente", escola=None, nivel=None, limit=10, offset=0, client_id="t2")
+    res = read_magias_controller(
+        nome="inexistente", escola=None, nivel=None, limit=10, offset=0, client_id="t2"
+    )
     assert res["status"] == 404
 
 
 def test_pagination_validation_error():
     reset_all_state()
-    res = read_magias_controller(nome=None, escola=None, nivel=None, limit=999, offset=0, client_id="t3")
+    res = read_magias_controller(
+        nome=None, escola=None, nivel=None, limit=999, offset=0, client_id="t3"
+    )
     assert res["status"] == 400
 
 

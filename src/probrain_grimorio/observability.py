@@ -37,11 +37,15 @@ def log_event(event: Dict[str, Any]) -> None:
 
 def record_metric(operation: str, latency_ms: float, status: int) -> None:
     METRICS["requests_total"] += 1
-    METRICS["requests_by_operation"][operation] = METRICS["requests_by_operation"].get(operation, 0) + 1
+    METRICS["requests_by_operation"][operation] = (
+        METRICS["requests_by_operation"].get(operation, 0) + 1
+    )
 
     if status >= 400:
         METRICS["errors_total"] += 1
-        METRICS["errors_by_operation"][operation] = METRICS["errors_by_operation"].get(operation, 0) + 1
+        METRICS["errors_by_operation"][operation] = (
+            METRICS["errors_by_operation"].get(operation, 0) + 1
+        )
 
     METRICS["latency_ms_by_operation"].setdefault(operation, []).append(latency_ms)
 

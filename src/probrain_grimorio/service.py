@@ -27,7 +27,9 @@ class MagiaService:
         REPO.insert(magia)
         return magia
 
-    def read(self, nome: Optional[str], escola: Optional[str], nivel: Optional[int]) -> List[Magia]:
+    def read(
+        self, nome: Optional[str], escola: Optional[str], nivel: Optional[int]
+    ) -> List[Magia]:
         # PERF: escola/nivel usam índice; nome parcial filtra em memória
         candidates_ids = REPO.query_ids(escola=escola, nivel=nivel)
         magias = REPO.list(ids_subset=candidates_ids)
@@ -54,16 +56,29 @@ class MagiaService:
     def delete(self, id_magia: str) -> Optional[Magia]:
         return REPO.delete(id_magia)
 
-    def calcular_dano_escala(self, id_magia: str, nivel_slot: int) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], int]:
+    def calcular_dano_escala(
+        self, id_magia: str, nivel_slot: int
+    ) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]], int]:
         magia = REPO.get(id_magia)
         if not magia:
             return None, {"code": "NOT_FOUND", "message": "Magia não encontrada."}, 404
 
         if magia.tipo != "ataque":
-            return None, {"code": "NOT_APPLICABLE", "message": "Magia não é do tipo ataque."}, 422
+            return (
+                None,
+                {"code": "NOT_APPLICABLE", "message": "Magia não é do tipo ataque."},
+                422,
+            )
 
         if magia.dano_escala is None:
-            return None, {"code": "NO_SCALING", "message": "Magia de ataque sem progressão de dano cadastrada."}, 422
+            return (
+                None,
+                {
+                    "code": "NO_SCALING",
+                    "message": "Magia de ataque sem progressão de dano cadastrada.",
+                },
+                422,
+            )
 
         try:
             dano = magia.dano_escala.calcular_para_slot(int(nivel_slot))

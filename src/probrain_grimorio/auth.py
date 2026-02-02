@@ -10,7 +10,9 @@ class AuthClaims:
     role: str
 
 
-def verify_bearer_token(authorization_header: Optional[str]) -> Tuple[bool, Optional[AuthClaims], str]:
+def verify_bearer_token(
+    authorization_header: Optional[str],
+) -> Tuple[bool, Optional[AuthClaims], str]:
     # SEC: validação fake no formato "Bearer valid:<sub>:<role>"
     if not authorization_header:
         return False, None, "missing_authorization"

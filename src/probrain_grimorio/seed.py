@@ -28,7 +28,9 @@ def seed_data() -> None:
         concentracao=False,
         descricao="Uma explosão flamejante que causa dano em área.",
         tipo="ataque",
-        dano_escala=DanoEscala(base_dados="8d6", slot_base=3, incremento_por_slot="1d6"),
+        dano_escala=DanoEscala(
+            base_dados="8d6", slot_base=3, incremento_por_slot="1d6"
+        ),
     )
 
     revivify = Magia(
