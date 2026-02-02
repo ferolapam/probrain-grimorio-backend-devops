@@ -1,4 +1,4 @@
-[11:01, 02/02/2026] Pamella Fontana Ferola: name: test-and-quality
+name: test-and-quality
 
 on:
   # Rodar CI em PR e em push na main garante qualidade antes de entrar em produção
